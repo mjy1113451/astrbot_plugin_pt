@@ -1,0 +1,44 @@
+{
+  "patpat": {
+    "description": "摸头杀配置",
+    "type": "object",
+    "hint": "配置摸头杀相关的行为参数",
+    "items": {
+      "enable": {
+        "description": "是否启用摸头杀",
+        "type": "bool",
+        "default": true,
+        "hint": "关闭后，收到摸头指令时将不再执行摸头动作"
+      },
+      "speed": {
+        "description": "摸头速度",
+        "type": "float",
+        "default": 1.0,
+        "hint": "控制摸头动作的快慢，值越大越快。建议范围：0.5 ~ 3.0",
+        "slider": {
+          "min": 0.5,
+          "max": 3.0,
+          "step": 0.1
+        }
+      },
+      "cooldown_seconds": {
+        "description": "摸头冷却时间（秒）",
+        "type": "float",
+        "default": 3.0,
+        "hint": "防止刷屏，两次摸头之间的最小间隔时间（秒）",
+        "slider": {
+          "min": 0,
+          "max": 10,
+          "step": 0.5
+        }
+      },
+      "reply_text": {
+        "description": "摸头回复文本",
+        "type": "text",
+        "default": "轻轻摸了摸你的头~",
+        "hint": "执行摸头动作时回复的消息内容，可使用变量 {user} 表示被摸用户昵称"
+      }
+    }
+  }
+}
+

@@ -1,5 +1,5 @@
-name: astrbot_plugin_pt
-display_name: pt
+name: astrbot_plugin_touch_head
 desc: 摸头杀GIF插件
+version: v1.1.1
 author: mjy1113451
-repo: https://github.com/mjy1113451/astrbot_plugin_pt
+repo: https://github.com/mjy1113451/touch_head
