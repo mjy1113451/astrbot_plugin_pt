@@ -318,7 +318,7 @@ def _build_petpet_gif(self, user_image: Image.Image, username: str) -> Optional[
                     pass
             return None
 
-    def _calculate_deformation(self, frame_index: int, total_frames: int) -> float:
+def _calculate_deformation(self, frame_index: int, total_frames: int) -> float:
         """ 计算头像变形系数，模拟被摸时的挤压效果。 返回1.0表示无变形，<1.0表示水平挤压。 """
         import math
         if total_frames <= 1:
