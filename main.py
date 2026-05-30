@@ -359,7 +359,7 @@ async def _cleanup_old_gifs(self):
                 logger.error(f"清理任务发生错误: {e}", exc_info=True)
 
     # 以下为辅助方法示例，需根据实际框架API补充
-    async def _get_avatar_via_framework(self, event: AstrMessageEvent) -> Optional[bytes]:
+async def _get_avatar_via_framework(self, event: AstrMessageEvent) -> Optional[bytes]:
         """ 通过AstrBot框架提供的API获取用户头像。 这是一个占位方法，实际实现需要根据您使用的AstrBot版本和API文档进行调整。 """
         try:
             # 示例：假设框架在上下文中提供了用户头像获取方法
