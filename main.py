@@ -75,7 +75,7 @@ class TouchHeadPlugin(star.Star):
     # --- 核心功能实现 ---
 
     @filter.command("摸摸")
-    async def handle_command(self, event: AstrMessageEvent):
+ async def handle_command(self, event: AstrMessageEvent):
 """ 处理"摸摸"命令。支持摸自己和@用户。 """
         sender_name = event.message_event_obj.sender.nickname
         sender_id = event.message_event_obj.sender.user_id
