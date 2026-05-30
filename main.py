@@ -234,7 +234,7 @@ async def _download_image(self, url: str) -> Optional[Image.Image]:
 
         return None
 
-    def _build_petpet_gif(self, user_image: Image.Image, username: str) -> Optional[Path]:
+def _build_petpet_gif(self, user_image: Image.Image, username: str) -> Optional[Path]:
         """ CPU密集型：生成摸头杀GIF。 正确处理图层顺序：头像在下，手在上，使用alpha通道混合。 此函数在单独的线程中运行，不会阻塞事件循环。 """
         if self._is_terminating:
             return None
