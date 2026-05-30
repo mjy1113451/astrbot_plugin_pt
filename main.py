@@ -178,7 +178,7 @@ async def _get_user_avatar(self, event: AstrMessageEvent) -> Optional[Image.Imag
 
         return None
 
-    async def _download_image(self, url: str) -> Optional[Image.Image]:
+async def _download_image(self, url: str) -> Optional[Image.Image]:
         """安全下载网络图片，使用流式读取防止内存放大。"""
         try:
             # 复用session
