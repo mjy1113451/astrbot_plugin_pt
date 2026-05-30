@@ -329,7 +329,7 @@ def _calculate_deformation(self, frame_index: int, total_frames: int) -> float:
         # 映射到 0.85 - 1.0 范围（最大挤压到85%宽度）
         return 0.85 + 0.15 * (1 - deformation_factor)
 
-    async def _cleanup_old_gifs(self):
+async def _cleanup_old_gifs(self):
         """ 后台任务：定期清理旧的GIF文件，防止磁盘空间无限增长。 设置为每小时运行一次。 """
         while not self._is_terminating:
             try:
