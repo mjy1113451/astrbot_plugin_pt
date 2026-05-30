@@ -105,7 +105,7 @@ async def handle_command(self, event: AstrMessageEvent):
             logger.error(f"处理摸头杀命令时发生错误: {e}", exc_info=True)
             await event.send_message("发生内部错误，无法处理您的请求。")
 
-    async def _get_user_avatar(self, event: AstrMessageEvent) -> Optional[Image.Image]:
+async def _get_user_avatar(self, event: AstrMessageEvent) -> Optional[Image.Image]:
         """ 获取用户头像，兼容多种来源： 1. 事件上下文中的头像URL（常见形式）。 2. 事件上下文中的头像Base64数据。 3. 通过框架API获取。 4. 作为fallback尝试下载QQ头像。 """
         # 尝试从事件上下文获取（框架不同字段名可能不同，需适配）
         avatar_url = getattr(event.message_event_obj.sender, "avatar", None)
