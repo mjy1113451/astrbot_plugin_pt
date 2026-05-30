@@ -76,7 +76,7 @@ class TouchHeadPlugin(star.Star):
     # --- 核心功能实现 ---
 
 @filter.command("摸头杀")
-    async def handle_command(self, event: AstrMessageEvent):
+async def handle_command(self, event: AstrMessageEvent):
         """ 处理“摸头杀”命令。 1. 异步获取头像（支持多种来源）。 2. 将CPU密集型GIF生成任务卸载到线程池，避免阻塞事件循环。 """
         sender_name = event.message_event_obj.sender.nickname
         logger.info(f"收到来自 {sender_name} 的摸头杀命令。")
