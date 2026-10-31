@@ -2,6 +2,7 @@ import base64
 import re
 import time
 import asyncio
+import math
 from io import BytesIO
 from pathlib import Path
 from typing import Optional
@@ -75,15 +76,15 @@ class TouchHeadPlugin(star.Star):
     # --- 核心功能实现 ---
 
     @filter.command("摸摸")
-async def handle_command(self, event: AstrMessageEvent):
-""" 处理"摸摸"命令。支持摸自己和@用户。 """
+    async def handle_command(self, event: AstrMessageEvent):
+        """ 处理"摸摸"命令。支持摸自己和@用户。 """
         sender_name = event.message_event_obj.sender.nickname
         sender_id = event.message_event_obj.sender.user_id
 
         # 1. 解析消息，判断是@用户还是自己
         # 尝试获取消息中的@用户
         target_user = None
-        
+
         # 遍历消息组件，查找At类型的组件
         for component in event.message_obj.message:
             if hasattr(component, 'type') and component.type == 'at':
@@ -279,7 +280,6 @@ async def handle_command(self, event: AstrMessageEvent):
 
     def _calculate_deformation(self, frame_index: int, total_frames: int) -> float:
         """ 计算头像变形系数，模拟被摸时的挤压效果。返回1.0表示无变形，<1.0表示水平挤压。 """
-        import math
         if total_frames <= 1:
             return 1.0
         progress = frame_index / (total_frames - 1)
