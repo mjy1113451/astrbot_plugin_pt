@@ -27,10 +27,6 @@ AstrBot 摸头杀插件 - 当用户拍机器人时自动生成并发送摸头GIF
 1. 将插件放入 AstrBot 的 `data/plugins/` 目录
 2. 重启 AstrBot 或在插件管理页面重载插件
 
-## 配置说明
-
-无需额外配置，安装后即可使用。
-
 ## 技术实现
 
 - 使用 Pillow 库本地生成GIF动画
@@ -38,25 +34,8 @@ AstrBot 摸头杀插件 - 当用户拍机器人时自动生成并发送摸头GIF
 - 监听 OneBot v11 协议的 `notice.notify.poke` 事件
 - 使用 base64 编码发送图片，兼容性更好
 
-## 更新日志
-
-### v1.1.0
-- 🎨 重构动画效果，更流畅的摸头动画
-- ✨ 新增 20 帧动画，每帧 50ms
-- 🖐️ 完整的手部绘制（包含手掌和 5 根手指）
-- 📐 更大的画布尺寸 (256x256)，更清晰的图像
-- 🔄 头像挤压效果优化，使用正弦波实现自然变形
-- 📤 改用 base64 编码发送图片，解决文件路径兼容性问题
-- 🔧 添加备用头像 URL，提高头像获取成功率
-
-### v1.0.0
-- 🎉 初始版本发布
-- ✅ 支持手动命令触发
-- ✅ 基础摸头 GIF 生成
-
 ## 支持
 
 [AstrBot 官方文档](https://astrbot.app)
 
-##作者的插件群
-qq群号1079297679
+[作者的插件群](https://qun.qq.com/universal-share/share?ac=1&authKey=xXhsG4C4PGwGT%2FMJjpEcHmqfMnk4kZLFVWDt3Dy2fIM5RpRwq%2BgqgD5tLiQOESO8&busi_data=eyJncm91cENvZGUiOiIxMDc1OTIwMzIzIiwidG9rZW4iOiJQWnNVUncwMTZJOW4yRS8zYm9WeUlOaDFxQllYTUZRWEhGM0krVkxIK2I5R1RKeXVob3ZzK08zZlpIMHF4NzZQIiwidWluIjoiMTczMTUzODMzNCJ9&data=sFXAGOGNT0e_-FdLFzTnJpEO-GKcDtOnulqYzaSJ15DMYtUxWf3fd9UKekJAG0NnBWQMCTDX9Mb7-Eikfzl8gw&svctype=4&tempid=h5_group_info)
