@@ -1,4 +1,3 @@
-import base64
 import re
 import time
 import asyncio
@@ -11,16 +10,15 @@ from PIL import Image
 import aiohttp
 
 from astrbot.api import star, logger
-from astrbot.api.event import AstrMessageEvent, MessageEventResult, filter
+from astrbot.api.event import AstrMessageEvent, filter
 from astrbot.api.message_components import Image as AstrImage
 from astrbot.api.star import StarTools
 
-# 设置Pillow图像像素上限，防止解压炸弹
 Image.MAX_IMAGE_PIXELS = 10_000_000
 
 
 class TouchHeadPlugin(star.Star):
-    """ 摸头杀插件主类。严格遵循AstrBot生命周期，使用线程池处理CPU密集型任务，确保异步事件循环不被阻塞。 """
+    """摸头杀插件主类。"""
 
     def __init__(self, context: star.Context):
         super().__init__(context)
@@ -68,26 +66,23 @@ class TouchHeadPlugin(star.Star):
 
     def _resolve_sender(self, event: AstrMessageEvent) -> Optional[Tuple[str, str]]:
         """
-        从事件中解析发送者的 (user_id, nickname)。
-        优先使用 AstrBot 通用接口 get_sender_id() / get_sender_name()，
-        失败时回退到 event.message_obj.sender (MessageMember)。
-
-        返回:
-            (user_id, nickname) 元组；若无法获取有效 user_id，返回 None。
+        解析发送者的 (user_id, nickname)。
+        优先使用通用接口 get_sender_id() / get_sender_name()，
+        失败时回退到 message_obj.sender。
         """
         user_id: Optional[str] = None
         nickname: str = ""
 
-        # 1) 首选：AstrBot 通用接口
+        # 1) 通用接口
         try:
             uid = event.get_sender_id()
             if uid:
                 user_id = str(uid)
             nickname = event.get_sender_name() or ""
         except Exception as e:
-            logger.debug(f"get_sender_id/get_sender_name 不可用或出错: {e}")
+            logger.debug(f"get_sender_id/get_sender_name 不可用: {e}")
 
-        # 2) 回退：message_obj.sender (MessageMember)
+        # 2) 回退 message_obj.sender
         if not user_id:
             try:
                 sender = getattr(event.message_obj, "sender", None)
@@ -100,11 +95,11 @@ class TouchHeadPlugin(star.Star):
             except Exception as e:
                 logger.debug(f"从 message_obj.sender 回退解析失败: {e}")
 
-        # 3) 最终校验：user_id 必须存在且非空
+        # 3) 最终校验
         if not user_id:
             logger.error(
-                "无法解析发送者 user_id，可能该平台适配器未提供发送者信息。"
-                f"event type={type(event).__name__}, platform={getattr(event, 'get_platform_name', lambda: 'unknown')()}"
+                "无法解析发送者 user_id，该平台适配器可能未提供发送者信息。"
+                f"event type={type(event).__name__}"
             )
             return None
 
@@ -114,16 +109,13 @@ class TouchHeadPlugin(star.Star):
 
     @filter.command("摸摸")
     async def handle_command(self, event: AstrMessageEvent):
-        """ 处理"摸摸"命令。支持摸自己和@用户。 """
-        # 1. 解析发送者（已抽离为独立辅助方法）
+        """处理“摸摸”命令。返回 MessageEventResult 由框架统一发送。"""
+        # 1. 解析发送者
         sender = self._resolve_sender(event)
         if sender is None:
-            return event.set_result(
-                MessageEventResult().message("无法识别您的用户信息，暂时无法处理摸头杀命令。")
-            )
+            return event.plain_result("无法识别您的用户信息，暂时无法处理摸头杀命令。")
 
         sender_id, sender_name = sender
-        # 兜底：昵称为空时用 user_id 代替，避免界面显示空白
         if not sender_name:
             sender_name = str(sender_id)
 
@@ -131,10 +123,7 @@ class TouchHeadPlugin(star.Star):
         target_user = None
         for component in event.message_obj.message:
             if hasattr(component, "type") and component.type == "at":
-                target_id = (
-                    component.data.get("qq")
-                    or component.data.get("user_id")
-                )
+                target_id = component.data.get("qq") or component.data.get("user_id")
                 if target_id:
                     target_user = {
                         "user_id": str(target_id),
@@ -160,24 +149,23 @@ class TouchHeadPlugin(star.Star):
         try:
             user_image = await self._get_user_avatar_by_id(event, target_id)
             if user_image is None:
-                return event.set_result(
-                    MessageEventResult().message("抱歉，无法获取头像，无法生成摸头杀图片。")
-                )
+                return event.plain_result("抱歉，无法获取头像，无法生成摸头杀图片。")
 
             gif_path = await asyncio.to_thread(
                 self._build_petpet_gif, user_image, target_name
             )
 
             if gif_path and gif_path.exists():
-                await event.send_message(AstrImage.fromFilePath(str(gif_path)))
+                # 关键修复：使用 event.image_result() 而不是 await event.send_message()
+                return event.image_result(str(gif_path))
             else:
-                await event.send_message("生成摸头杀图片失败，请稍后再试。")
+                return event.plain_result("生成摸头杀图片失败，请稍后再试。")
 
         except Exception as e:
             logger.error(f"处理摸头杀命令时发生错误: {e}", exc_info=True)
-            await event.send_message("发生内部错误，无法处理您的请求。")
+            return event.plain_result("发生内部错误，无法处理您的请求。")
 
-    # --- 头像获取与GIF生成（逻辑与之前一致，仅修复缩进） ---
+    # --- 头像获取与 GIF 生成（逻辑不变） ---
 
     async def _get_user_avatar_by_id(
         self, event: AstrMessageEvent, user_id: str
@@ -204,14 +192,12 @@ class TouchHeadPlugin(star.Star):
 
                 content_type = response.headers.get("Content-Type", "")
                 if "image" not in content_type:
-                    logger.warning(f"非图片Content-Type: {content_type}")
+                    logger.warning(f"非图片 Content-Type: {content_type}")
                     return None
 
                 max_size = 5 * 1024 * 1024
                 if response.content_length and response.content_length > max_size:
-                    logger.warning(
-                        f"图片过大，超过限制: {response.content_length} bytes"
-                    )
+                    logger.warning(f"图片过大: {response.content_length} bytes")
                     return None
 
                 image_data = b""
@@ -249,7 +235,7 @@ class TouchHeadPlugin(star.Star):
         if self._is_terminating:
             return None
 
-        logger.info(f"开始为用户 {username} 生成GIF...")
+        logger.info(f"开始为用户 {username} 生成 GIF...")
 
         timestamp = int(time.time() * 1000)
         safe_username = re.sub(r'[/\\<>:"|?*\x00-\x1f]', "_", username)
@@ -304,14 +290,14 @@ class TouchHeadPlugin(star.Star):
                     optimize=True,
                     disposal=2,
                 )
-                logger.info(f"GIF已生成并保存到: {output_path}")
+                logger.info(f"GIF 已生成并保存到: {output_path}")
                 return output_path
             else:
                 logger.error("未能生成任何帧。")
                 return None
 
         except Exception as e:
-            logger.error(f"生成GIF过程中发生错误: {e}", exc_info=True)
+            logger.error(f"生成 GIF 过程中发生错误: {e}", exc_info=True)
             if output_path.exists():
                 try:
                     output_path.unlink()
@@ -319,9 +305,7 @@ class TouchHeadPlugin(star.Star):
                     pass
             return None
 
-    def _calculate_deformation(
-        self, frame_index: int, total_frames: int
-    ) -> float:
+    def _calculate_deformation(self, frame_index: int, total_frames: int) -> float:
         if total_frames <= 1:
             return 1.0
         progress = frame_index / (total_frames - 1)
@@ -332,7 +316,7 @@ class TouchHeadPlugin(star.Star):
         while not self._is_terminating:
             try:
                 await asyncio.sleep(3600)
-                logger.info("执行GIF清理任务...")
+                logger.info("执行 GIF 清理任务...")
 
                 cutoff_time = 24 * 3600
                 count = 0
@@ -348,7 +332,7 @@ class TouchHeadPlugin(star.Star):
                         logger.error(f"清理文件 {gif_file.name} 时出错: {e}")
 
                 if count > 0:
-                    logger.info(f"本次清理了 {count} 个旧GIF文件。")
+                    logger.info(f"本次清理了 {count} 个旧 GIF 文件。")
             except asyncio.CancelledError:
                 raise
             except Exception as e:
