@@ -21,6 +21,13 @@ AstrBot 摸头杀插件 - 当用户拍机器人时自动生成并发送摸头GIF
 ## 平台支持
 
 - ✅ QQ (通过 NapCat / aiocqhttp 适配器)
+- ✅ Telegram（需在插件配置 `platform_tokens.telegram_bot_token` 填写 Bot Token）
+- ✅ Discord（需填写 `platform_tokens.discord_bot_token`）
+- ✅ Slack（需填写 `platform_tokens.slack_bot_token`，要求 `users:read` scope）
+- ✅ 飞书 / Lark（需填写 `platform_tokens.feishu_app_id` 与 `feishu_app_secret`）
+- ⚠️ 微信官方平台不提供用户头像，无法生成摸头 GIF
+
+非 QQ 平台上 `/摸摸 @用户` 中的 @ 标识为各平台的用户标识（Telegram 为 @用户名、飞书为 open_id、Slack 为成员 ID 等），插件会自动识别并按平台调用对应接口拉取头像生成 GIF。头像获取失败时会在回复中给出对应的配置提示。注意 Telegram Bot API 只接受数字 user_id，没有公开的「@用户名 → 数字 ID」换算接口，因此 Telegram 上直接 @用户名 会提示改用数字 ID；可先让目标在本群发言，再用其数字 ID 指定。
 
 ## 安装
 
@@ -34,7 +41,8 @@ AstrBot 摸头杀插件 - 当用户拍机器人时自动生成并发送摸头GIF
 ## 技术实现
 
 - 使用 Pillow 库本地生成GIF动画
-- 通过 QQ 官方头像 API 获取用户头像
+- 按平台获取用户头像：QQ 走官方头像 API；Telegram 走 Bot API（getUserProfilePhotos / getFile，目标需为数字 user_id）；Discord 走 REST API（含默认头像回退）；Slack 走 users.info；飞书走 tenant_access_token + contact 接口
+- 头像下载地址统一校验：按平台限定官方 CDN 域名，内网/本机/非 http(s) 目标直接拒绝；下载阶段关闭自动重定向，每一跳都重新过校验，最多跟随 3 跳
 - 监听 OneBot v11 协议的 `notice.notify.poke` 事件
 - 使用 base64 编码发送图片，兼容性更好
 

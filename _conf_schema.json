@@ -16,6 +16,46 @@
         }
       }
     }
+  },
+  "platform_tokens": {
+    "description": "多平台头像获取凭据（issue #16）",
+    "type": "object",
+    "hint": "摸摸命令在 Telegram/Discord/Slack/飞书上需要这些凭据才能拉取被 @ 用户的头像；不填则对应平台无法生成 GIF（QQ 无需填写）。微信官方平台不提供用户头像，仅支持摸自己以外的文字交互提示。",
+    "items": {
+      "telegram_bot_token": {
+        "description": "Telegram Bot Token",
+        "type": "string",
+        "secret": true,
+        "default": "",
+        "hint": "与 Telegram 平台适配器使用的 Bot 一致；用于 getUserProfilePhotos/getFile 拉取头像"
+      },
+      "discord_bot_token": {
+        "description": "Discord Bot Token",
+        "type": "string",
+        "secret": true,
+        "default": "",
+        "hint": "用于 GET /users/{id} 拉取头像"
+      },
+      "slack_bot_token": {
+        "description": "Slack Bot Token",
+        "type": "string",
+        "secret": true,
+        "default": "",
+        "hint": "形如 xoxb-...，需 users:read scope；用于 users.info 拉取头像"
+      },
+      "feishu_app_id": {
+        "description": "飞书 App ID",
+        "type": "string",
+        "default": "",
+        "hint": "自建应用凭据，与飞书平台适配器一致"
+      },
+      "feishu_app_secret": {
+        "description": "飞书 App Secret",
+        "type": "string",
+        "secret": true,
+        "default": "",
+        "hint": "用于 tenant_access_token → contact/v3/users 拉取头像"
+      }
+    }
   }
 }
-
